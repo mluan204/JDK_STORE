@@ -1,8 +1,9 @@
-package com.example.Backend_IE303;
+package com.example.Backend_IE303.config;
 
 import com.example.Backend_IE303.controller.JwtAuthenticationFilter;
 import com.example.Backend_IE303.service.UserDetailServiceImp;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,8 +21,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @AllArgsConstructor
 public class SecurityConfig {
+    @Autowired
     private final UserDetailServiceImp userDetailServiceImp;
+    @Autowired
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+//    req-> req.requestMatchers("/api/v1/login/**", "/api/v1/register/**")
+//                                .permitAll()
+//                                .anyRequest()
+//                                .authenticated()
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
