@@ -1,12 +1,12 @@
 package com.example.Backend_IE303.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -27,16 +27,13 @@ public class Product {
     String image;
     String suppliers;
     Integer quantity_available;
-    Date date_expired;
+    Timestamp date_expired;
     Integer sale_price;
     Integer input_price;
     Integer price;
 
-
-
-        @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "category_id")
     Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
