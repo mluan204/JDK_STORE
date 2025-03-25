@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +27,7 @@ public class Product {
     String image;
     String suppliers;
     Integer quantity_available;
-    Date date_expired;
+    Timestamp date_expired;
     Integer sale_price;
     Integer input_price;
     Integer price;
