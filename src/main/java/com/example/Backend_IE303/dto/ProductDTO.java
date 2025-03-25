@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,7 @@ public class ProductDTO {
     String image;
     String suppliers;
     Integer quantityAvailable;
-    Date dateExpired;
+    Timestamp dateExpired;
     Integer salePrice;
     Integer inputPrice;
     Integer price;
