@@ -1,6 +1,7 @@
 package com.example.Backend_IE303.controller;
 
 import com.example.Backend_IE303.service.BillService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/bill")
 public class BillController {
+    @Autowired
     private final BillService billService;
 
     public BillController(BillService billService) {
