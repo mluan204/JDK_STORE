@@ -23,6 +23,7 @@ public class Category {
     Timestamp created_at;
     String name;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.PERSIST)
-    List<Product> products;
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Product> products;
+
 }
