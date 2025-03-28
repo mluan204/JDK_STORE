@@ -26,11 +26,6 @@ public class SecurityConfig {
     @Autowired
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-//    req-> req.requestMatchers("/api/v1/login/**", "/api/v1/register/**")
-//                                .permitAll()
-//                                .anyRequest()
-//                                .authenticated()
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http

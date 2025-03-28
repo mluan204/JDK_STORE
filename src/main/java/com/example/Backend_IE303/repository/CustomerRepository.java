@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Long> {
+public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     @Query("SELECT COUNT(c.id) FROM Customer c " +
             "WHERE FUNCTION('DATE', c.created_at) = CURRENT_DATE")
