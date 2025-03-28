@@ -32,6 +32,7 @@ public class Product {
     Integer input_price;
     Integer price;
 
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     Category category;
