@@ -1,34 +1,30 @@
 package com.example.Backend_IE303.service;
 
-import com.example.Backend_IE303.repository.BillRepository;
-import org.springframework.stereotype.Service;
+import com.example.Backend_IE303.dto.BillDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.HashMap;
 
-@Service
-public class BillService {
-    private final BillRepository billRepository;
+public interface BillService {
+    Integer getDailyRevenue();
 
-    public BillService(BillRepository billRepository) {
-        this.billRepository = billRepository;
-    }
+    Integer getYesterdayRevenue();
 
-    public Integer getDailyRevenue() {
-        return billRepository.getDailyRevenue();
-    }
+    Integer getNumberOfBills();
 
-    public Integer getYesterdayRevenue() {
-        return billRepository.getYesterdayRevenue(java.time.LocalDate.now().minusDays(1));
-    }
+    Integer getYesterdayNumberOfBills();
 
-    public Integer getNumberOfBills() {
-        return billRepository.getNumberOfBills();}
+    List<BillDTO> getAllBills();
 
-    public Integer getYesterdayNumberOfBills() {
-        return billRepository.getYesterdayNumberOfBills(java.time.LocalDate.now().minusDays(1));
-    }
+    Page<BillDTO> getAllBills(Pageable pageable);
 
+    BillDTO getBillById(Integer id);
+
+    BillDTO createBill(BillDTO billDTO, int pointsToUse);
+
+    Boolean deleteBill(Integer id);
+
+    Boolean deleteErrorBill(Integer id);
 }

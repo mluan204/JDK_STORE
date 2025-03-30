@@ -7,11 +7,11 @@ import java.util.Map;
 
 @Service
 public class StatisticsService {
-    private final BillService billService;
+    private final BillServiceImpl billService;
     private final BillDetailService billDetailService;
     private final CustomerService customerService;
 
-    public StatisticsService(BillService billService, BillDetailService billDetailService, CustomerService customerService) {
+    public StatisticsService(BillServiceImpl billService, BillDetailService billDetailService, CustomerService customerService) {
         this.billService = billService;
         this.billDetailService = billDetailService;
         this.customerService = customerService;
