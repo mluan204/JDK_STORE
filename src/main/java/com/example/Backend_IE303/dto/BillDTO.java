@@ -3,6 +3,7 @@ package com.example.Backend_IE303.dto;
 import com.example.Backend_IE303.entity.*;
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,8 +18,10 @@ public class BillDTO {
     private Integer pointsToUse;
     private Boolean isDeleted;
     private Boolean is_error;
+    private Timestamp createdAt;
+    private Integer totalQuantity;
 
-    public BillDTO(int id, int total_cost, int after_discount, int customer_id, int employee_id, Boolean isDeleted, Boolean isError, List<BillDetailDTO> billDetails) {
+    public BillDTO(int id, int total_cost, int after_discount, int customer_id, int employee_id, Boolean isDeleted, Boolean isError, List<BillDetailDTO> billDetails, Timestamp createdAt, Integer totalQuantity) {
         this.id = id;
         this.total_cost = total_cost;
         this.after_discount = after_discount;
@@ -27,6 +30,8 @@ public class BillDTO {
         this.isDeleted = isDeleted;
         this.is_error = isError;
         this.billDetails = billDetails;
+        this.createdAt = createdAt;
+        this.totalQuantity = totalQuantity;
     }
 
     public static BillDTO fromEntity(Bill bill) {
@@ -41,7 +46,10 @@ public class BillDTO {
                 bill.getEmployee().getId(),
                 bill.getIsDeleted(),
                 bill.getIs_error(),
-                details
+                details,
+                bill.getCreatedAt(),
+                bill.getTotalQuantity()
+
         );
     }
 }

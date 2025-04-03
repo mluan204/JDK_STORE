@@ -80,7 +80,7 @@ public class BillServiceImpl implements BillService {
         Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
-                pageable.getSort().and(Sort.by("isDeleted").ascending()) // Sắp xếp is_deleted=false trước
+                pageable.getSort().and(Sort.by("isDeleted").ascending().and(Sort.by("createdAt").descending())) // Sắp xếp is_deleted=false trước
         );
         return billRepository.findAll(sortedPageable).map(BillDTO::fromEntity);
     }
@@ -108,13 +108,15 @@ public class BillServiceImpl implements BillService {
         Bill bill = new Bill();
         bill.setEmployee(employee);
         bill.setCustomer(customer);
-        bill.setCreated_at(new Timestamp(System.currentTimeMillis()));
+        bill.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
         //Lưu hóa đơn trước để lấy id
         Bill savedBill = billRepository.save(bill);
 
         // Khai báo biến tổng tiền bằng AtomicInteger
         AtomicInteger totalCost = new AtomicInteger(0);
+        // Khai báo biến tổng số lượng bằng AtomicInteger
+        AtomicInteger totalQuantity = new AtomicInteger(0);
 
         //Duyệt qua danh sách sản phẩm và tạo BillDetail
         List<BillDetail> billDetails = request.getBillDetails().stream().map(detailDTO ->{
@@ -139,10 +141,17 @@ public class BillServiceImpl implements BillService {
             } else {
                 totalCost.addAndGet(product.getPrice() * detailDTO.getQuantity());
             }
+
+            // Cập nhật tổng số lượng sản phẩm
+            totalQuantity.addAndGet(detailDTO.getQuantity());
+
             product.setQuantity_available(product.getQuantity_available() - detailDTO.getQuantity());
 
             return billDetail;
         }).collect(Collectors.toList());
+
+        // Cập nhật tổng số lượng sản phẩm vào hóa đơn
+        savedBill.setTotalQuantity(totalQuantity.get());
 
         // Lưu danh sách chi tiết hóa đơn
         billDetailRepository.saveAll(billDetails);
