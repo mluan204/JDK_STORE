@@ -29,8 +29,12 @@ public class Bill {
     @JoinColumn(name = "customer_id")
     Customer customer;
 
-    Timestamp created_at;
+    @Column(name = "created_at")
+    Timestamp createdAt;
     int total_cost;
+
+    @Column(nullable = true)
+    private int totalQuantity = 0;
 
     @Column(name="is_deleted" ,nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     Boolean isDeleted = false;

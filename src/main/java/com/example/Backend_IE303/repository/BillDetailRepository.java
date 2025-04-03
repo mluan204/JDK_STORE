@@ -12,11 +12,11 @@ import java.util.List;
 public interface BillDetailRepository extends JpaRepository<BillDetail, Integer> {
     @Query("SELECT SUM(bd.quantity) FROM BillDetail bd " +
             "JOIN bd.bill b " +
-            "WHERE FUNCTION('DATE', b.created_at) = CURRENT_DATE AND b.isDeleted = false")
+            "WHERE FUNCTION('DATE', b.createdAt) = CURRENT_DATE AND b.isDeleted = false")
     Integer getTotalProductsSold();
 
     @Query("SELECT SUM(bd.quantity) FROM BillDetail bd " +
-            "JOIN bd.bill b WHERE FUNCTION('DATE', b.created_at) = :date AND b.isDeleted = false"
+            "JOIN bd.bill b WHERE FUNCTION('DATE', b.createdAt) = :date AND b.isDeleted = false"
     )
     Integer getYesterdayProductsSold(@Param("date") java.time.LocalDate date
     );
