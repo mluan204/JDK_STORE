@@ -4,6 +4,7 @@ import com.example.Backend_IE303.entity.AuthenticationResponse;
 import com.example.Backend_IE303.entity.UserAccount;
 import com.example.Backend_IE303.repository.UserAccountRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,12 +13,15 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 
 @Service
-@AllArgsConstructor
 public class AuthenticationService {
-    private final UserAccountRepository repository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
+    @Autowired
+    private UserAccountRepository repository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(UserAccount request){
         if (repository.findByUsername(request.getUsername()).isPresent()){
