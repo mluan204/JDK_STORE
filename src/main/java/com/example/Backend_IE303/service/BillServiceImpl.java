@@ -97,12 +97,12 @@ public class BillServiceImpl implements BillService {
     @Override
     public BillDTO createBill(BillDTO request, int pointsToUse) {
         //Tìm nhân viên
-        Employee employee = employeeRepository.findById(request.getEmployee_id())
-                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + request.getEmployee_id()));
+        Employee employee = employeeRepository.findById(request.getEmployee().getId())
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + request.getEmployee().getId()));
 
         //Tìm khách hàng
-        Customer customer = customerRepository.findById(request.getCustomer_id())
-                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + request.getCustomer_id()));
+        Customer customer = customerRepository.findById(request.getCustomer().getId())
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + request.getCustomer().getId()));
 
         //Tạo hóa đơn mới
         Bill bill = new Bill();

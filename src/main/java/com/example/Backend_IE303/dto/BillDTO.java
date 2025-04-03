@@ -12,8 +12,8 @@ public class BillDTO {
     private int id;
     private int total_cost;
     private int after_discount;
-    private int customer_id;
-    private int employee_id;
+    private CustomerDTO customer;
+    private EmployeeDTO employee;
     private List<BillDetailDTO> billDetails;
     private Integer pointsToUse;
     private Boolean isDeleted;
@@ -21,12 +21,12 @@ public class BillDTO {
     private Timestamp createdAt;
     private Integer totalQuantity;
 
-    public BillDTO(int id, int total_cost, int after_discount, int customer_id, int employee_id, Boolean isDeleted, Boolean isError, List<BillDetailDTO> billDetails, Timestamp createdAt, Integer totalQuantity) {
+    public BillDTO(int id, int total_cost, int after_discount, CustomerDTO customer, EmployeeDTO employee, Boolean isDeleted, Boolean isError, List<BillDetailDTO> billDetails, Timestamp createdAt, Integer totalQuantity) {
         this.id = id;
         this.total_cost = total_cost;
         this.after_discount = after_discount;
-        this.customer_id = customer_id;
-        this.employee_id = employee_id;
+        this.customer = customer;
+        this.employee = employee;
         this.isDeleted = isDeleted;
         this.is_error = isError;
         this.billDetails = billDetails;
@@ -38,12 +38,20 @@ public class BillDTO {
         List<BillDetailDTO> details = bill.getBillDetails().stream()
                 .map(BillDetailDTO::fromEntity)
                 .collect(Collectors.toList());
+        CustomerDTO customer = new CustomerDTO();
+        customer.setId(bill.getCustomer().getId());
+        customer.setName(bill.getCustomer().getName());
+
+        EmployeeDTO employee = new EmployeeDTO();
+        employee.setId(bill.getEmployee().getId());
+        employee.setName(bill.getEmployee().getName());
+
         return new BillDTO(
                 bill.getId(),
                 bill.getTotal_cost(),
                 bill.getAfter_discount(),
-                bill.getCustomer().getId(),
-                bill.getEmployee().getId(),
+                customer,
+                employee,
                 bill.getIsDeleted(),
                 bill.getIs_error(),
                 details,
