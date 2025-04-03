@@ -12,7 +12,11 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**");
+                registry.addMapping("/api/**") // Cho phép tất cả API trong /api/
+                        .allowedOrigins("http://localhost:5173") // Cho phép frontend truy cập
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Cho phép các method HTTP
+                        .allowedHeaders("*")
+                        .allowCredentials(true); // Nếu dùng cookies hoặc xác thực
             }
         };
     }

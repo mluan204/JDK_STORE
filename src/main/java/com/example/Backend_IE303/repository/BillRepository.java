@@ -11,16 +11,16 @@ import java.util.Optional;
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Integer> {
 
-    @Query("SELECT SUM(b.after_discount) FROM Bill b WHERE FUNCTION('DATE', b.created_at) = CURRENT_DATE AND b.isDeleted = false")
+    @Query("SELECT SUM(b.after_discount) FROM Bill b WHERE FUNCTION('DATE', b.createdAt) = CURRENT_DATE AND b.isDeleted = false")
     Integer getDailyRevenue();
 
-    @Query("SELECT SUM(b.after_discount) FROM Bill b WHERE FUNCTION('DATE', b.created_at) = :date AND b.isDeleted = false")
+    @Query("SELECT SUM(b.after_discount) FROM Bill b WHERE FUNCTION('DATE', b.createdAt) = :date AND b.isDeleted = false")
     Integer getYesterdayRevenue(@Param("date") java.time.LocalDate date);
 
-    @Query("SELECT COUNT(b) FROM Bill b WHERE FUNCTION('DATE', b.created_at) = CURRENT_DATE AND b.isDeleted = false")
+    @Query("SELECT COUNT(b) FROM Bill b WHERE FUNCTION('DATE', b.createdAt) = CURRENT_DATE AND b.isDeleted = false")
     Integer getNumberOfBills();
 
-    @Query("SELECT COUNT(b) FROM Bill b WHERE FUNCTION('DATE', b.created_at) = :date AND b.isDeleted = false")
+    @Query("SELECT COUNT(b) FROM Bill b WHERE FUNCTION('DATE', b.createdAt) = :date AND b.isDeleted = false")
     Integer getYesterdayNumberOfBills(@Param("date") java.time.LocalDate date);
 
 }

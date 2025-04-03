@@ -2,10 +2,7 @@ package com.example.Backend_IE303.dto;
 
 import com.example.Backend_IE303.entity.Bill;
 import com.example.Backend_IE303.entity.Customer;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.sql.Timestamp;
@@ -16,6 +13,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class CustomerDTO {
     Integer id;
     Timestamp created_at;
@@ -36,4 +34,7 @@ public class CustomerDTO {
 
         bills = customer.getBills().stream().map(Bill::getId).toList();
     }
+
+
+
 }
