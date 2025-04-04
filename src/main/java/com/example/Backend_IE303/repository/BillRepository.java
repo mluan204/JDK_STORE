@@ -1,6 +1,8 @@
 package com.example.Backend_IE303.repository;
 
 import com.example.Backend_IE303.entity.Bill;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +25,11 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
     @Query("SELECT COUNT(b) FROM Bill b WHERE FUNCTION('DATE', b.createdAt) = :date AND b.isDeleted = false")
     Integer getYesterdayNumberOfBills(@Param("date") java.time.LocalDate date);
 
+    @Query("SELECT b FROM Bill b " +
+            "WHERE (" +
+            "LOWER(b.employee.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(b.customer.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "STR(b.id) LIKE CONCAT('%', :keyword, '%')" +
+            ")")
+    Page<Bill> searchBillsByKeyword(@Param("keyword") String keyword, Pageable pageable);
 }

@@ -5,11 +5,16 @@ import com.example.Backend_IE303.dto.BillDetailDTO;
 import com.example.Backend_IE303.entity.*;
 import com.example.Backend_IE303.entity.EmbeddedId.BillProId;
 import com.example.Backend_IE303.repository.*;
+import lombok.Data;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -75,15 +80,32 @@ public class BillServiceImpl implements BillService {
 
     }
 
+//    @Override
+//    public  Page<BillDTO> getAllBills(Pageable pageable){
+//        Pageable sortedPageable = PageRequest.of(
+//                pageable.getPageNumber(),
+//                pageable.getPageSize(),
+//                pageable.getSort().and(Sort.by("isDeleted").ascending().and(Sort.by("createdAt").descending())) // Sắp xếp is_deleted=false trước
+//        );
+//        return billRepository.findAll(sortedPageable).map(BillDTO::fromEntity);
+//    }
+
     @Override
-    public  Page<BillDTO> getAllBills(Pageable pageable){
+    public Page<BillDTO> getAllBills(Pageable pageable, String keyword) {
         Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
-                pageable.getSort().and(Sort.by("isDeleted").ascending().and(Sort.by("createdAt").descending())) // Sắp xếp is_deleted=false trước
+                pageable.getSort().and(Sort.by("isDeleted").ascending().and(Sort.by("createdAt").descending()))
         );
-        return billRepository.findAll(sortedPageable).map(BillDTO::fromEntity);
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return billRepository.findAll(sortedPageable).map(BillDTO::fromEntity);
+        }
+
+        return billRepository.searchBillsByKeyword(keyword,sortedPageable)
+                .map(BillDTO::fromEntity);
     }
+
 
     @Override
     public  BillDTO getBillById(Integer id){
@@ -109,6 +131,7 @@ public class BillServiceImpl implements BillService {
         bill.setEmployee(employee);
         bill.setCustomer(customer);
         bill.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        bill.setNotes(request.getNotes());
 
         //Lưu hóa đơn trước để lấy id
         Bill savedBill = billRepository.save(bill);

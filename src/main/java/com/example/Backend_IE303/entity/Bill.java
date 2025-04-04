@@ -45,8 +45,13 @@ public class Bill {
     @Column(nullable = true)
     Integer after_discount;
 
+    @Column(nullable = true)
+    String notes;
+
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL)
     List<BillDetail> billDetails = new ArrayList<>();
+
+
 
     @PrePersist
     void prePersist() {
