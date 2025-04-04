@@ -20,8 +20,9 @@ public class BillDTO {
     private Boolean is_error;
     private Timestamp createdAt;
     private Integer totalQuantity;
+    private String notes;
 
-    public BillDTO(int id, int total_cost, int after_discount, CustomerDTO customer, EmployeeDTO employee, Boolean isDeleted, Boolean isError, List<BillDetailDTO> billDetails, Timestamp createdAt, Integer totalQuantity) {
+    public BillDTO(int id, int total_cost, int after_discount, CustomerDTO customer, EmployeeDTO employee, Boolean isDeleted, Boolean isError, List<BillDetailDTO> billDetails, Timestamp createdAt, Integer totalQuantity, String notes) {
         this.id = id;
         this.total_cost = total_cost;
         this.after_discount = after_discount;
@@ -32,6 +33,7 @@ public class BillDTO {
         this.billDetails = billDetails;
         this.createdAt = createdAt;
         this.totalQuantity = totalQuantity;
+        this.notes = notes;
     }
 
     public static BillDTO fromEntity(Bill bill) {
@@ -41,10 +43,12 @@ public class BillDTO {
         CustomerDTO customer = new CustomerDTO();
         customer.setId(bill.getCustomer().getId());
         customer.setName(bill.getCustomer().getName());
+        customer.setPhone_number(bill.getCustomer().getPhone_number());
 
         EmployeeDTO employee = new EmployeeDTO();
         employee.setId(bill.getEmployee().getId());
         employee.setName(bill.getEmployee().getName());
+        employee.setPhone_number(bill.getEmployee().getPhone_number());
 
         return new BillDTO(
                 bill.getId(),
@@ -56,7 +60,8 @@ public class BillDTO {
                 bill.getIs_error(),
                 details,
                 bill.getCreatedAt(),
-                bill.getTotalQuantity()
+                bill.getTotalQuantity(),
+                bill.getNotes()
 
         );
     }

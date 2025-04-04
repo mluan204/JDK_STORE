@@ -4,6 +4,8 @@ import com.example.Backend_IE303.dto.BillDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +20,7 @@ public interface BillService {
 
     List<BillDTO> getAllBills();
 
-    Page<BillDTO> getAllBills(Pageable pageable);
+    Page<BillDTO> getAllBills(Pageable pageable, String keyword);
 
     BillDTO getBillById(Integer id);
 

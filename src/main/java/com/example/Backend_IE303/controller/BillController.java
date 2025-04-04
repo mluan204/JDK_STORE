@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -37,12 +40,16 @@ public class BillController {
         return ResponseEntity.ok(billService.getAllBills());
     }
 
+
+
     @GetMapping("/paged")
-    public ResponseEntity<Page<BillDTO>> getAllBillsPaged(
+    public ResponseEntity<Page<BillDTO>> searchBills(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size){
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword
+    ){
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(billService.getAllBills(pageable));
+        return ResponseEntity.ok(billService.getAllBills(pageable, keyword));
     }
 
     @GetMapping("/{id}")
