@@ -35,22 +35,19 @@ public class BillController {
         return billService.getNumberOfBills();
     }
 
-    @GetMapping("/get-all-bills")
-    public ResponseEntity<List<BillDTO>> getAllBills() {
-        return ResponseEntity.ok(billService.getAllBills());
-    }
-
-
 
     @GetMapping("/paged")
-    public ResponseEntity<Page<BillDTO>> searchBills(
+    public ResponseEntity<Page<BillDTO>> getAllBills(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String keyword
-    ){
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate
+    ) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(billService.getAllBills(pageable, keyword));
+        return ResponseEntity.ok(billService.getAllBills(pageable, keyword, startDate, endDate));
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<BillDTO> getBillById(@PathVariable Integer id) {
@@ -64,6 +61,12 @@ public class BillController {
         return ResponseEntity.ok(billService.createBill(request, request.getPointsToUse()));
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<BillDTO> updateBill(@PathVariable Integer id, @RequestBody BillDTO request) {
+        BillDTO updateBill = billService.updateBill(id, request, request.getPointsToUse());
+        return ResponseEntity.ok(updateBill);
+    }
+
     @PutMapping("/delete/{id}")
     public ResponseEntity<String> deleteBill(@PathVariable Integer id) {
         boolean isDeleted = billService.deleteBill(id);
@@ -75,15 +78,5 @@ public class BillController {
         }
     }
 
-    @PutMapping("/delete_error/{id}")
-    public ResponseEntity<String> deleteBillError(@PathVariable Integer id) {
-        boolean isDeleted = billService.deleteErrorBill(id);
-        if (isDeleted) {
-            return ResponseEntity.ok("Success: Bill has been deleted.");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Fail: Bill not found or could not be deleted.");
-        }
-    }
 
 }
