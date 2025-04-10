@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -71,39 +72,101 @@ public class BillServiceImpl implements BillService {
         return billRepository.getYesterdayNumberOfBills(java.time.LocalDate.now().minusDays(1));
     }
 
-    @Override
-    public List<BillDTO> getAllBills() {
-        return billRepository.findAll().stream()
-                .map(BillDTO::fromEntity)
-                .sorted(Comparator.comparing(BillDTO::getIsDeleted))
-                .collect(Collectors.toList());
-
-    }
+//    @Override
+//    public List<BillDTO> getAllBills() {
+//        return billRepository.findAll().stream()
+//                .map(BillDTO::fromEntity)
+//                .sorted(Comparator.comparing(BillDTO::getIsDeleted))
+//                .collect(Collectors.toList());
+//
+//    }
 
 //    @Override
-//    public  Page<BillDTO> getAllBills(Pageable pageable){
+//    public List<BillDTO> getAllBills(String startDateStr, String endDateStr) {
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+//
+//        LocalDate startDate = null;
+//        LocalDate endDate = null;
+//
+//        if (startDateStr != null && !startDateStr.isEmpty()) {
+//            startDate = LocalDate.parse(startDateStr, formatter);
+//        }
+//
+//        if (endDateStr != null && !endDateStr.isEmpty()) {
+//            endDate = LocalDate.parse(endDateStr, formatter);
+//        }
+//
+//        List<Bill> filteredBills;
+//
+//        if (startDate != null && endDate != null) {
+//            filteredBills = billRepository.findByCreatedAtBetween(startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
+//        } else {
+//            filteredBills = billRepository.findAll();
+//        }
+//
+//        return filteredBills.stream()
+//                .map(BillDTO::fromEntity)
+//                .sorted(Comparator.comparing(BillDTO::getIsDeleted))
+//                .collect(Collectors.toList());
+//    }
+//
+//    @Override
+//    public Page<BillDTO> getAllBills(Pageable pageable, String keyword) {
 //        Pageable sortedPageable = PageRequest.of(
 //                pageable.getPageNumber(),
 //                pageable.getPageSize(),
-//                pageable.getSort().and(Sort.by("isDeleted").ascending().and(Sort.by("createdAt").descending())) // Sắp xếp is_deleted=false trước
+//                pageable.getSort().and(Sort.by("isDeleted").ascending().and(Sort.by("createdAt").descending()))
 //        );
-//        return billRepository.findAll(sortedPageable).map(BillDTO::fromEntity);
+//
+//        if (keyword == null || keyword.trim().isEmpty()) {
+//            return billRepository.findAll(sortedPageable).map(BillDTO::fromEntity);
+//        }
+//
+//        return billRepository.searchBillsByKeyword(keyword,sortedPageable)
+//                .map(BillDTO::fromEntity);
 //    }
 
+
     @Override
-    public Page<BillDTO> getAllBills(Pageable pageable, String keyword) {
+    public Page<BillDTO> getAllBills(Pageable pageable, String keyword, String startDateStr, String endDateStr) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate startDate = null;
+        LocalDate endDate = null;
+
+        if (startDateStr != null && !startDateStr.isEmpty()) {
+            startDate = LocalDate.parse(startDateStr, formatter);
+        }
+
+        if (endDateStr != null && !endDateStr.isEmpty()) {
+            endDate = LocalDate.parse(endDateStr, formatter);
+        }
+
         Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
-                pageable.getSort().and(Sort.by("isDeleted").ascending().and(Sort.by("createdAt").descending()))
+                pageable.getSort().and(Sort.by("isDeleted").ascending()).and(Sort.by("createdAt").descending())
         );
 
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return billRepository.findAll(sortedPageable).map(BillDTO::fromEntity);
+        // Trường hợp không lọc thời gian
+        if (startDate == null || endDate == null) {
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return billRepository.findAll(sortedPageable).map(BillDTO::fromEntity);
+            } else {
+                return billRepository.searchBillsByKeyword(keyword, sortedPageable).map(BillDTO::fromEntity);
+            }
         }
 
-        return billRepository.searchBillsByKeyword(keyword,sortedPageable)
-                .map(BillDTO::fromEntity);
+        // Có lọc thời gian
+        LocalDateTime from = startDate.atStartOfDay();
+        LocalDateTime to = endDate.plusDays(1).atStartOfDay();
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return billRepository.findByCreatedAtBetween(from, to, sortedPageable)
+                    .map(BillDTO::fromEntity);
+        } else {
+            return billRepository.searchBillsByKeywordAndCreatedAtBetween(keyword, from, to, sortedPageable)
+                    .map(BillDTO::fromEntity);
+        }
     }
 
 
@@ -205,23 +268,101 @@ public class BillServiceImpl implements BillService {
         return BillDTO.fromEntity(savedBill);
     }
 
-
+    @Transactional
     @Override
-    public Boolean deleteBill(Integer Id) {
-        Bill bill = billRepository.findById(Id)
-                .orElse(null);
+    public BillDTO updateBill(Integer billId, BillDTO request, int pointsToUse) {
+        // Tìm hóa đơn hiện tại
+        Bill existingBill = billRepository.findById(billId)
+                .orElseThrow(() -> new RuntimeException("Bill not found with id: " + billId));
 
-        if (bill == null || Boolean.TRUE.equals(bill.getIsDeleted())) {
-            return false; // Hóa đơn không tồn tại hoặc đã bị xóa trước đó
-        }
+        // Tìm nhân viên
+        Employee employee = employeeRepository.findById(request.getEmployee().getId())
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + request.getEmployee().getId()));
 
-        bill.setIsDeleted(true);
-        billRepository.save(bill);
-        return true; // Xóa thành công
+        // Tìm khách hàng
+        Customer customer = customerRepository.findById(request.getCustomer().getId())
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + request.getCustomer().getId()));
+
+        // Cộng lại số điểm đã trừ trước đó
+        int previousAfterDiscount = existingBill.getAfter_discount() != null ? existingBill.getAfter_discount() : 0;
+        int previousTotal = existingBill.getTotal_cost() != 0 ? existingBill.getTotal_cost() : 0;
+        int oldUsedPoints = (previousTotal - previousAfterDiscount) / 100;
+        int oldEarnedPoints = previousAfterDiscount / 10000;
+        customer.setScore(customer.getScore() + oldUsedPoints - oldEarnedPoints);
+
+        // Khôi phục số lượng sản phẩm đã trừ trước đó
+        existingBill.getBillDetails().forEach(detail -> {
+            Product product = detail.getProduct();
+            product.setQuantity_available(product.getQuantity_available() + detail.getQuantity());
+            productRepository.save(product);
+        });
+
+        // Xóa toàn bộ chi tiết hóa đơn cũ
+        billDetailRepository.deleteByBillId(billId);
+
+        // Cập nhật thông tin hóa đơn
+        existingBill.setEmployee(employee);
+        existingBill.setCustomer(customer);
+        existingBill.setNotes(request.getNotes());
+
+        // Tính lại tổng tiền và số lượng
+        AtomicInteger totalCost = new AtomicInteger(0);
+        AtomicInteger totalQuantity = new AtomicInteger(0);
+
+        List<BillDetail> updatedDetails = request.getBillDetails().stream().map(detailDTO -> {
+            Product product = productRepository.findById(detailDTO.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found with id: " + detailDTO.getProductId()));
+
+            BillDetail billDetail = new BillDetail();
+            billDetail.setId(new BillProId(existingBill.getId(), product.getId()));
+            billDetail.setBill(existingBill);
+            billDetail.setProduct(product);
+            billDetail.setPrice(product.getPrice());
+
+            if (detailDTO.getAfterDiscount() != null) {
+                billDetail.setAfter_discount(detailDTO.getAfterDiscount());
+                totalCost.addAndGet(detailDTO.getAfterDiscount() * detailDTO.getQuantity());
+            } else {
+                billDetail.setAfter_discount(null);
+                totalCost.addAndGet(product.getPrice() * detailDTO.getQuantity());
+            }
+
+            billDetail.setQuantity(detailDTO.getQuantity());
+            totalQuantity.addAndGet(detailDTO.getQuantity());
+
+            product.setQuantity_available(product.getQuantity_available() - detailDTO.getQuantity());
+            productRepository.save(product);
+
+            return billDetail;
+        }).collect(Collectors.toList());
+
+        // Lưu các chi tiết mới
+        billDetailRepository.saveAll(updatedDetails);
+
+        // Cập nhật điểm giảm
+        int currentPoints = customer.getScore();
+        int validPointsToUse = Math.min(pointsToUse, currentPoints);
+        int discountFromPoints = Math.min(validPointsToUse * 100, totalCost.get() / 2);
+        int finalTotal = totalCost.get() - discountFromPoints;
+        int earnedPoints = finalTotal / 10000;
+
+        // Cập nhật hóa đơn
+        existingBill.setTotal_cost(totalCost.get());
+        existingBill.setAfter_discount(finalTotal);
+        existingBill.setTotalQuantity(totalQuantity.get());
+        existingBill.setBillDetails(updatedDetails);
+        billRepository.save(existingBill);
+
+        // Cập nhật lại điểm khách hàng
+        customer.setScore(currentPoints - (discountFromPoints / 100) + earnedPoints);
+        customerRepository.save(customer);
+
+        return BillDTO.fromEntity(existingBill);
     }
 
+
     @Override
-    public Boolean deleteErrorBill(Integer Id){
+    public Boolean deleteBill(Integer Id){
         Bill bill = billRepository.findById(Id)
                 .orElse(null);
 

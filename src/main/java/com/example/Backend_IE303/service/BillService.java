@@ -18,15 +18,15 @@ public interface BillService {
 
     Integer getYesterdayNumberOfBills();
 
-    List<BillDTO> getAllBills();
 
-    Page<BillDTO> getAllBills(Pageable pageable, String keyword);
+    Page<BillDTO> getAllBills(Pageable pageable, String keyword, String startDateStr, String endDateStr);
 
     BillDTO getBillById(Integer id);
 
     BillDTO createBill(BillDTO billDTO, int pointsToUse);
 
+    BillDTO updateBill(Integer billId, BillDTO request, int pointsToUse);
+
     Boolean deleteBill(Integer id);
 
-    Boolean deleteErrorBill(Integer id);
 }
