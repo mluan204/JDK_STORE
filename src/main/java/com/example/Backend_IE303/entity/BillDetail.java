@@ -28,6 +28,8 @@ public class BillDetail {
     Product product;
 
     int price;
-    int after_discount;
+
+    @Column(nullable = true)
+    Integer after_discount;
     int quantity;
 }

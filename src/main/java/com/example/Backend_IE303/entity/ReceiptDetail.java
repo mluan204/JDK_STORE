@@ -32,4 +32,5 @@ public class ReceiptDetail {
     int input_price;
     boolean isCheck;
 
+
 }

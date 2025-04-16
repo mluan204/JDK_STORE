@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("api/products")
 public class ProductController {
     private final ProductService productService;
 
@@ -42,6 +42,15 @@ public class ProductController {
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Integer id) {
         ProductDTO productDTO = productService.getProductById(id);
         return ResponseEntity.ok(productDTO);
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<?> addProduct(@RequestBody Product product) {
+        String result = productService.addProduct(product);
+        if (result.equals("Sản phẩm đã tồn tại")) {
+            return ResponseEntity.badRequest().body(result);
+        }
+        return ResponseEntity.ok(result);
     }
 
 }

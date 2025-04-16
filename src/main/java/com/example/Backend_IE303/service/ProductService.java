@@ -18,5 +18,7 @@ public interface ProductService {
     //Lấy sản phẩm theo id
     ProductDTO getProductById(Integer id);
 
+    //Thêm sản phẩm mới
+    String addProduct(Product product);
 
 }

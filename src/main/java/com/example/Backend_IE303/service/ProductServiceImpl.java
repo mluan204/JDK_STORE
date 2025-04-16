@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,9 +41,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDTO getProductById(Integer id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("San pham voi" + id +" khong ton tại"));
         return ProductDTO.fromEntity(product);
     }
 
 
+    @Override
+    public String addProduct(Product product) {
+        Optional<Product> existingProduct = productRepository.findByName(product.getName());
+        if (existingProduct.isPresent()) {
+            return "Sản phẩm đã tồn tại";
+        }
+
+        productRepository.save(product);
+
+        return "Sản phẩm đã được thêm thành công";
+    }
 }
