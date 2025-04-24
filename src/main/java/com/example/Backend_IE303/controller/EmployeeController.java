@@ -24,6 +24,11 @@ public class EmployeeController {
         return ResponseEntity.ok(service.getById(id));
     }
 
+    @PutMapping("{id}")
+    public ResponseEntity<EmployeeDTO> updateEmployeeById(@PathVariable Integer id, @RequestBody EmployeeDTO employeeDTO){
+        return ResponseEntity.ok(service.updateEmployee(id,employeeDTO));
+    }
+
     @PostMapping
     public ResponseEntity<EmployeeDTO> createEmployee(@RequestBody EmployeeDTO dto){
         return ResponseEntity.ok(service.createEmployee(dto));

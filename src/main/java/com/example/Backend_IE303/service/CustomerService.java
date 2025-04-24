@@ -40,6 +40,15 @@ public class CustomerService {
         return new CustomerDTO(c);
     }
 
+    public boolean updateCustomer(CustomerDTO dto){
+        Customer cus = customerRepository.findById(dto.getId()).orElseThrow(() -> new RuntimeException("Khong tim thay nguoi dung"));
+        cus.setName(dto.getName());
+        cus.setScore(dto.getScore());
+        cus.setGender(dto.isGender());
+        customerRepository.save(cus);
+        return true;
+    }
+
     public void deleteCustomerById(Integer id){
         customerRepository.deleteById(id);
     }

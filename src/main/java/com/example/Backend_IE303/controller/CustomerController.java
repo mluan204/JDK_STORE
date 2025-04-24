@@ -32,6 +32,11 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.createCustomer(customer));
     }
 
+    @PutMapping
+    public ResponseEntity<String> updateCustomer(@RequestBody CustomerDTO customer){
+        return ResponseEntity.ok(customerService.updateCustomer(customer)? "Cap nhat thanh cong": "Cap nhat that bai");
+    }
+
     @GetMapping("/daily-new-customers")
     public Integer getNewCustomers() {
         return customerService.getNewCustomers();
