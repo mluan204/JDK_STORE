@@ -11,49 +11,54 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.sql.Timestamp;
 
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Integer> {
 
-    @Query("SELECT SUM(b.after_discount) FROM Bill b WHERE FUNCTION('DATE', b.createdAt) = CURRENT_DATE AND b.isDeleted = false")
-    Integer getDailyRevenue();
+        @Query(value = "SELECT COALESCE(SUM(b.after_discount), 0) FROM Bill b WHERE DATE(b.created_at) = CURRENT_DATE AND b.is_deleted = false", nativeQuery = true)
+        Integer getDailyRevenue();
 
-    @Query("SELECT SUM(b.after_discount) FROM Bill b WHERE FUNCTION('DATE', b.createdAt) = :date AND b.isDeleted = false")
-    Integer getYesterdayRevenue(@Param("date") java.time.LocalDate date);
+        @Query(value = "SELECT COALESCE(SUM(b.after_discount), 0) FROM Bill b WHERE DATE(b.created_at) = :date AND b.is_deleted = false", nativeQuery = true)
+        Integer getYesterdayRevenue(@Param("date") java.time.LocalDate date);
 
-    @Query("SELECT COUNT(b) FROM Bill b WHERE FUNCTION('DATE', b.createdAt) = CURRENT_DATE AND b.isDeleted = false")
-    Integer getNumberOfBills();
+        @Query(value = "SELECT COUNT(*) FROM Bill b WHERE DATE(b.created_at) = CURRENT_DATE AND b.is_deleted = false", nativeQuery = true)
+        Integer getNumberOfBills();
 
-    @Query("SELECT COUNT(b) FROM Bill b WHERE FUNCTION('DATE', b.createdAt) = :date AND b.isDeleted = false")
-    Integer getYesterdayNumberOfBills(@Param("date") java.time.LocalDate date);
+        @Query(value = "SELECT COUNT(*) FROM Bill b WHERE DATE(b.created_at) = :date AND b.is_deleted = false", nativeQuery = true)
+        Integer getYesterdayNumberOfBills(@Param("date") java.time.LocalDate date);
 
-//    List<Bill> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
-//
-    @Query("SELECT b FROM Bill b " +
-            "WHERE (" +
-            "LOWER(b.employee.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(b.customer.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "STR(b.id) LIKE CONCAT('%', :keyword, '%')" +
-            ") "
-          )
-    Page<Bill> searchBillsByKeyword(
-            @Param("keyword") String keyword,
-            Pageable pageable
-    );
+        @Query(value = "SELECT b FROM Bill b " +
+                        "WHERE (" +
+                        "LOWER(b.employee.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+                        "LOWER(b.customer.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+                        "CAST(b.id AS string) LIKE CONCAT('%', :keyword, '%')" +
+                        ") AND b.isDeleted = false")
+        Page<Bill> searchBillsByKeyword(
+                        @Param("keyword") String keyword,
+                        Pageable pageable);
 
-    Page<Bill> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end, Pageable pageable);
+        Page<Bill> findByCreatedAtBetweenAndIsDeletedFalse(LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    @Query("SELECT b FROM Bill b " +
-            "WHERE (" +
-            "LOWER(b.employee.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(b.customer.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "STR(b.id) LIKE CONCAT('%', :keyword, '%')" +
-            ") AND b.createdAt BETWEEN :start AND :end")
-    Page<Bill> searchBillsByKeywordAndCreatedAtBetween(
-            @Param("keyword") String keyword,
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end,
-            Pageable pageable
-    );
+        @Query(value = "SELECT b FROM Bill b " +
+                        "WHERE (" +
+                        "LOWER(b.employee.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+                        "LOWER(b.customer.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+                        "CAST(b.id AS string) LIKE CONCAT('%', :keyword, '%')" +
+                        ") AND b.createdAt BETWEEN :start AND :end AND b.isDeleted = false")
+        Page<Bill> searchBillsByKeywordAndCreatedAtBetween(
+                        @Param("keyword") String keyword,
+                        @Param("start") LocalDateTime start,
+                        @Param("end") LocalDateTime end,
+                        Pageable pageable);
 
+        @Query(value = "SELECT b FROM Bill b WHERE b.createdAt BETWEEN :startDate AND :endDate AND b.isDeleted = false")
+        List<Bill> findByDateRange(
+                        @Param("startDate") Timestamp startDate,
+                        @Param("endDate") Timestamp endDate);
+
+        @Query(value = "SELECT COALESCE(SUM(b.after_discount), 0) FROM Bill b WHERE b.createdAt BETWEEN :startDate AND :endDate AND b.isDeleted = false", nativeQuery = true)
+        Integer getTotalRevenue(
+                        @Param("startDate") Timestamp startDate,
+                        @Param("endDate") Timestamp endDate);
 }
