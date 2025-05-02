@@ -37,7 +37,6 @@ public class BillServiceImpl implements BillService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
-
     public BillServiceImpl(
             BillRepository billRepository,
             BillDetailRepository billDetailRepository,
@@ -65,67 +64,69 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public Integer getNumberOfBills() {
-        return billRepository.getNumberOfBills();}
+        return billRepository.getNumberOfBills();
+    }
 
     @Override
     public Integer getYesterdayNumberOfBills() {
         return billRepository.getYesterdayNumberOfBills(java.time.LocalDate.now().minusDays(1));
     }
 
-//    @Override
-//    public List<BillDTO> getAllBills() {
-//        return billRepository.findAll().stream()
-//                .map(BillDTO::fromEntity)
-//                .sorted(Comparator.comparing(BillDTO::getIsDeleted))
-//                .collect(Collectors.toList());
-//
-//    }
+    // @Override
+    // public List<BillDTO> getAllBills() {
+    // return billRepository.findAll().stream()
+    // .map(BillDTO::fromEntity)
+    // .sorted(Comparator.comparing(BillDTO::getIsDeleted))
+    // .collect(Collectors.toList());
+    //
+    // }
 
-//    @Override
-//    public List<BillDTO> getAllBills(String startDateStr, String endDateStr) {
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//
-//        LocalDate startDate = null;
-//        LocalDate endDate = null;
-//
-//        if (startDateStr != null && !startDateStr.isEmpty()) {
-//            startDate = LocalDate.parse(startDateStr, formatter);
-//        }
-//
-//        if (endDateStr != null && !endDateStr.isEmpty()) {
-//            endDate = LocalDate.parse(endDateStr, formatter);
-//        }
-//
-//        List<Bill> filteredBills;
-//
-//        if (startDate != null && endDate != null) {
-//            filteredBills = billRepository.findByCreatedAtBetween(startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
-//        } else {
-//            filteredBills = billRepository.findAll();
-//        }
-//
-//        return filteredBills.stream()
-//                .map(BillDTO::fromEntity)
-//                .sorted(Comparator.comparing(BillDTO::getIsDeleted))
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public Page<BillDTO> getAllBills(Pageable pageable, String keyword) {
-//        Pageable sortedPageable = PageRequest.of(
-//                pageable.getPageNumber(),
-//                pageable.getPageSize(),
-//                pageable.getSort().and(Sort.by("isDeleted").ascending().and(Sort.by("createdAt").descending()))
-//        );
-//
-//        if (keyword == null || keyword.trim().isEmpty()) {
-//            return billRepository.findAll(sortedPageable).map(BillDTO::fromEntity);
-//        }
-//
-//        return billRepository.searchBillsByKeyword(keyword,sortedPageable)
-//                .map(BillDTO::fromEntity);
-//    }
-
+    // @Override
+    // public List<BillDTO> getAllBills(String startDateStr, String endDateStr) {
+    // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    //
+    // LocalDate startDate = null;
+    // LocalDate endDate = null;
+    //
+    // if (startDateStr != null && !startDateStr.isEmpty()) {
+    // startDate = LocalDate.parse(startDateStr, formatter);
+    // }
+    //
+    // if (endDateStr != null && !endDateStr.isEmpty()) {
+    // endDate = LocalDate.parse(endDateStr, formatter);
+    // }
+    //
+    // List<Bill> filteredBills;
+    //
+    // if (startDate != null && endDate != null) {
+    // filteredBills =
+    // billRepository.findByCreatedAtBetween(startDate.atStartOfDay(),
+    // endDate.plusDays(1).atStartOfDay());
+    // } else {
+    // filteredBills = billRepository.findAll();
+    // }
+    //
+    // return filteredBills.stream()
+    // .map(BillDTO::fromEntity)
+    // .sorted(Comparator.comparing(BillDTO::getIsDeleted))
+    // .collect(Collectors.toList());
+    // }
+    //
+    // @Override
+    // public Page<BillDTO> getAllBills(Pageable pageable, String keyword) {
+    // Pageable sortedPageable = PageRequest.of(
+    // pageable.getPageNumber(),
+    // pageable.getPageSize(),
+    // pageable.getSort().and(Sort.by("isDeleted").ascending().and(Sort.by("createdAt").descending()))
+    // );
+    //
+    // if (keyword == null || keyword.trim().isEmpty()) {
+    // return billRepository.findAll(sortedPageable).map(BillDTO::fromEntity);
+    // }
+    //
+    // return billRepository.searchBillsByKeyword(keyword,sortedPageable)
+    // .map(BillDTO::fromEntity);
+    // }
 
     @Override
     public Page<BillDTO> getAllBills(Pageable pageable, String keyword, String startDateStr, String endDateStr) {
@@ -144,8 +145,7 @@ public class BillServiceImpl implements BillService {
         Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
-                pageable.getSort().and(Sort.by("isDeleted").ascending()).and(Sort.by("createdAt").descending())
-        );
+                pageable.getSort().and(Sort.by("isDeleted").ascending()).and(Sort.by("createdAt").descending()));
 
         // Trường hợp không lọc thời gian
         if (startDate == null || endDate == null) {
@@ -161,7 +161,7 @@ public class BillServiceImpl implements BillService {
         LocalDateTime to = endDate.plusDays(1).atStartOfDay();
 
         if (keyword == null || keyword.trim().isEmpty()) {
-            return billRepository.findByCreatedAtBetween(from, to, sortedPageable)
+            return billRepository.findByCreatedAtBetweenAndIsDeletedFalse(from, to, sortedPageable)
                     .map(BillDTO::fromEntity);
         } else {
             return billRepository.searchBillsByKeywordAndCreatedAtBetween(keyword, from, to, sortedPageable)
@@ -169,34 +169,34 @@ public class BillServiceImpl implements BillService {
         }
     }
 
-
     @Override
-    public  BillDTO getBillById(Integer id){
+    public BillDTO getBillById(Integer id) {
         Bill bill = billRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bill not found with id: " + id));
         return BillDTO.fromEntity(bill);
     }
 
-
     @Transactional
     @Override
     public BillDTO createBill(BillDTO request, int pointsToUse) {
-        //Tìm nhân viên
+        // Tìm nhân viên
         Employee employee = employeeRepository.findById(request.getEmployee().getId())
-                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + request.getEmployee().getId()));
+                .orElseThrow(
+                        () -> new RuntimeException("Employee not found with id: " + request.getEmployee().getId()));
 
-        //Tìm khách hàng
+        // Tìm khách hàng
         Customer customer = customerRepository.findById(request.getCustomer().getId())
-                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + request.getCustomer().getId()));
+                .orElseThrow(
+                        () -> new RuntimeException("Customer not found with id: " + request.getCustomer().getId()));
 
-        //Tạo hóa đơn mới
+        // Tạo hóa đơn mới
         Bill bill = new Bill();
         bill.setEmployee(employee);
         bill.setCustomer(customer);
         bill.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         bill.setNotes(request.getNotes());
 
-        //Lưu hóa đơn trước để lấy id
+        // Lưu hóa đơn trước để lấy id
         Bill savedBill = billRepository.save(bill);
 
         // Khai báo biến tổng tiền bằng AtomicInteger
@@ -204,8 +204,8 @@ public class BillServiceImpl implements BillService {
         // Khai báo biến tổng số lượng bằng AtomicInteger
         AtomicInteger totalQuantity = new AtomicInteger(0);
 
-        //Duyệt qua danh sách sản phẩm và tạo BillDetail
-        List<BillDetail> billDetails = request.getBillDetails().stream().map(detailDTO ->{
+        // Duyệt qua danh sách sản phẩm và tạo BillDetail
+        List<BillDetail> billDetails = request.getBillDetails().stream().map(detailDTO -> {
             Product product = productRepository.findById(detailDTO.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product not found with id: " + detailDTO.getProductId()));
 
@@ -242,15 +242,16 @@ public class BillServiceImpl implements BillService {
         // Lưu danh sách chi tiết hóa đơn
         billDetailRepository.saveAll(billDetails);
 
-        //Tính toán điểm và giảm giá
-        int currentPoints = customer.getScore();  // Điểm hiện có của khách
+        // Tính toán điểm và giảm giá
+        int currentPoints = customer.getScore(); // Điểm hiện có của khách
 
         // Xác định số điểm có thể sử dụng (không vượt quá số điểm khách có)
         int validPointsToUse = Math.min(pointsToUse, currentPoints);
         int discountFromPoints = validPointsToUse * 100; // Mỗi điểm giảm 100 VNĐ
 
         // Đảm bảo số tiền giảm không vượt quá tổng tiền
-        discountFromPoints = Math.min(discountFromPoints, totalCost.get() / 2);//Số tiền giảm không được quá 50% tổng bill
+        discountFromPoints = Math.min(discountFromPoints, totalCost.get() / 2);// Số tiền giảm không được quá 50% tổng
+                                                                               // bill
 
         int finalTotal = totalCost.get() - discountFromPoints; // Tổng tiền sau giảm
         int earnedPoints = finalTotal / 10000; // Điểm thưởng mới
@@ -277,11 +278,13 @@ public class BillServiceImpl implements BillService {
 
         // Tìm nhân viên
         Employee employee = employeeRepository.findById(request.getEmployee().getId())
-                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + request.getEmployee().getId()));
+                .orElseThrow(
+                        () -> new RuntimeException("Employee not found with id: " + request.getEmployee().getId()));
 
         // Tìm khách hàng
         Customer customer = customerRepository.findById(request.getCustomer().getId())
-                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + request.getCustomer().getId()));
+                .orElseThrow(
+                        () -> new RuntimeException("Customer not found with id: " + request.getCustomer().getId()));
 
         // Cộng lại số điểm đã trừ trước đó
         int previousAfterDiscount = existingBill.getAfter_discount() != null ? existingBill.getAfter_discount() : 0;
@@ -360,9 +363,8 @@ public class BillServiceImpl implements BillService {
         return BillDTO.fromEntity(existingBill);
     }
 
-
     @Override
-    public Boolean deleteBill(Integer Id){
+    public Boolean deleteBill(Integer Id) {
         Bill bill = billRepository.findById(Id)
                 .orElse(null);
 
@@ -370,7 +372,7 @@ public class BillServiceImpl implements BillService {
             return false; // Hóa đơn không tồn tại hoặc đã bị xóa trước đó
         }
 
-        //Lấy danh sách billdetail
+        // Lấy danh sách billdetail
         List<BillDetail> billDetails = billDetailRepository.findByBillId(Id);
 
         // Hoàn trả số lượng sản phẩm về kho

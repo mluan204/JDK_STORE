@@ -18,7 +18,6 @@ public interface BillService {
 
     Integer getYesterdayNumberOfBills();
 
-
     Page<BillDTO> getAllBills(Pageable pageable, String keyword, String startDateStr, String endDateStr);
 
     BillDTO getBillById(Integer id);
