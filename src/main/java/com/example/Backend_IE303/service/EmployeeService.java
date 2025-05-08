@@ -2,7 +2,6 @@ package com.example.Backend_IE303.service;
 
 import com.example.Backend_IE303.dto.EmployeeDTO;
 import com.example.Backend_IE303.entity.Employee;
-import com.example.Backend_IE303.exceptions.ApiError;
 import com.example.Backend_IE303.repository.EmployeeRepository;
 import org.springframework.stereotype.Service;
 

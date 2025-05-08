@@ -2,6 +2,7 @@ package com.example.Backend_IE303.config;
 
 import com.example.Backend_IE303.service.JwtService;
 import com.example.Backend_IE303.service.UserDetailServiceImp;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,8 +36,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")){
             token = authHeader.substring(7);
-            username = jwtService.extractUsername(token);
+            try {
+                username = jwtService.extractUsername(token); // nếu token hết hạn -> lỗi xảy ra ở đây
+            } catch (ExpiredJwtException e) {
+                // ✅ Token hết hạn, xử lý ở đây
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token expired");
+                return;
+            }
         }
+
+
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = context.getBean(UserDetailServiceImp.class).loadUserByUsername(username);
@@ -51,6 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
+
         }
 
         filterChain.doFilter(request,response);
