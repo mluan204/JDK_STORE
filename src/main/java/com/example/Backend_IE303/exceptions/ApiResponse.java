@@ -7,7 +7,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter
 @Getter
-public class ApiError {
+public class ApiResponse {
     private Integer status;
     private String message;
 }
