@@ -1,35 +1,30 @@
 package com.example.Backend_IE303.entity;
 
-import com.example.Backend_IE303.entity.EmbeddedId.EmployeeShiftId;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
+@Table(name = "employee_shifts")
 @Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
 public class EmployeeShift {
-    @EmbeddedId
-    EmployeeShiftId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @ManyToOne
-    @MapsId("EmployeeId")
-    @JoinColumn(name = "employee_id")
-    Employee employee;
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;
 
-    @ManyToOne
-    @MapsId("ShiftId")
-    @JoinColumn(name = "shift_id")
-    Shift shift;
+    @Column(nullable = false)
+    private LocalDateTime date;
 
-    Timestamp time_in;
-    Timestamp time_out;
-    int wage;
+    @Column(nullable = false)
+    private String shiftType; // e.g., "MORNING", "AFTERNOON", "NIGHT"
+
 }

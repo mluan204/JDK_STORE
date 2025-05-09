@@ -1,7 +1,6 @@
 package com.example.Backend_IE303.dto;
 
 import com.example.Backend_IE303.entity.Bill;
-import com.example.Backend_IE303.entity.EmbeddedId.EmployeeShiftId;
 import com.example.Backend_IE303.entity.Employee;
 import com.example.Backend_IE303.entity.EmployeeShift;
 import com.example.Backend_IE303.entity.Receipt;
@@ -31,7 +30,7 @@ public class EmployeeDTO {
     String address;
     String position;
 
-    List<EmployeeShiftId> employeeShifts = new ArrayList<>();
+    List<Integer> employeeShifts = new ArrayList<>();
     List<Integer> bills = new ArrayList<>();
     List<Integer> receipts = new ArrayList<>();
 
