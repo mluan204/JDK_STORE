@@ -77,6 +77,5 @@ public class BillController {
                     .body("Fail: Bill not found or could not be deleted.");
         }
     }
-
-
+    
 }
