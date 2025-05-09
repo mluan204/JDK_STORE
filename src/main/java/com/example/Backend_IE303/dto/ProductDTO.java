@@ -29,11 +29,6 @@ public class ProductDTO {
     Integer categoryId;
     String categoryName;
 
-    // Chỉ lấy danh sách ID thay vì toàn bộ đối tượng để tránh vòng lặp
-    List<Integer> comboProductIds;
-    List<Integer> billDetailIds;
-    List<Integer> receiptDetailIds;
-
     // Chuyển từ `Product` sang `ProductDTO`
     public static ProductDTO fromEntity(Product product) {
         return new ProductDTO(
@@ -48,16 +43,7 @@ public class ProductDTO {
                 product.getInput_price(),
                 product.getPrice(),
                 product.getCategory().getId(),
-                product.getCategory().getName(),
-                product.getComboProducts().stream()
-                        .map(comboProduct -> comboProduct.getId().getComboId())
-                        .collect(Collectors.toList()),
-                product.getBillDetails().stream()
-                        .map(billDetail -> billDetail.getId().getBillId())
-                        .collect(Collectors.toList()),
-                product.getReceiptDetails().stream()
-                        .map(receiptDetail -> receiptDetail.getId().getReceiptId())
-                        .collect(Collectors.toList())
+                product.getCategory().getName()
         );
     }
 
