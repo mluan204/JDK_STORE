@@ -48,4 +48,10 @@ public class ReceiptController {
         }
         return ResponseEntity.ok(receiptDetails);
     }
+
+    @PostMapping("/add")
+    public ResponseEntity<String> addReceipt(@RequestBody ReceiptDTO dto) {
+        receiptService.addReceipt(dto);
+        return ResponseEntity.ok("Thêm phiếu nhập thành công");
+    }
 }
