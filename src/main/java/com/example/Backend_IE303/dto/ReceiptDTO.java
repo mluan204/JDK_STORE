@@ -7,9 +7,18 @@ import java.sql.Timestamp;
 @Data
 @AllArgsConstructor
 public class ReceiptDTO {
-    private Integer id;
+    public ReceiptDetailDTO[] receiptDetails;
     private Timestamp created_at;
     private int total_cost;
     private String note;
-    private String employee_name;
+    private Integer employeeId;
+
+    public ReceiptDTO() {}
+
+    public ReceiptDTO(Integer id, Timestamp createdAt, int totalCost, String note, String note1) {
+    }
+
+
+    // Getters and setters
 }
+
