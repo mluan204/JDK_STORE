@@ -29,7 +29,11 @@ public class SalesDataService {
         SalesChartDTO chartDTO = new SalesChartDTO();
 
         if (type.equals("HOURLY")) {
-            chartDTO.setLabels(List.of("00:00", "06:00", "12:00", "18:00"));
+            List<String> labels = new ArrayList<>();
+            for (int i = 0; i < 24; i++) {
+                labels.add(String.format("%02d:00", i));
+            }
+            chartDTO.setLabels(labels);
             chartDTO.setData(processHourlyData(bills));
         } else if (type.equals("DAILY")) {
             // Tính số ngày trong tháng
@@ -58,7 +62,7 @@ public class SalesDataService {
                                 bill -> bill.getAfter_discount() != null ? bill.getAfter_discount() : 0)));
 
         List<Double> result = new ArrayList<>();
-        for (int hour : List.of(0, 6, 12, 18)) {
+        for (int hour = 0; hour < 24; hour++) {
             result.add(hourlyRevenue.getOrDefault(hour, 0.0));
         }
         return result;
