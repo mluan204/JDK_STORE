@@ -45,11 +45,8 @@ public class ProductController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addProduct(@RequestBody Product product) {
-        String result = productService.addProduct(product);
-        if (result.equals("Sản phẩm đã tồn tại")) {
-            return ResponseEntity.badRequest().body(result);
-        }
+    public ResponseEntity<ProductDTO> addProduct(@RequestBody Product product) {
+        ProductDTO result = productService.addProduct(product);
         return ResponseEntity.ok(result);
     }
 

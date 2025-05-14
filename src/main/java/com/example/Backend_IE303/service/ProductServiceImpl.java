@@ -2,6 +2,7 @@ package com.example.Backend_IE303.service;
 
 import com.example.Backend_IE303.dto.ProductDTO;
 import com.example.Backend_IE303.entity.Product;
+import com.example.Backend_IE303.exceptions.CustomException;
 import com.example.Backend_IE303.repository.CategoryRepository;
 import com.example.Backend_IE303.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,13 +48,11 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public String addProduct(Product product) {
+    public ProductDTO addProduct(Product product) {
         Optional<Product> existingProduct = productRepository.findByName(product.getName());
         if (existingProduct.isPresent()) {
-            return "Sản phẩm đã tồn tại";
+            throw new CustomException(101, "Sản phẩm đã tồn tại");
         }
-        productRepository.save(product);
-
-        return "Sản phẩm đã được thêm thành công";
+        return ProductDTO.fromEntity(productRepository.save(product)) ;
     }
 }
