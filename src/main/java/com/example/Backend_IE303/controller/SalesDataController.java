@@ -1,6 +1,7 @@
 package com.example.Backend_IE303.controller;
 
 import com.example.Backend_IE303.dto.SalesChartDTO;
+import com.example.Backend_IE303.dto.SalesReportDTO;
 import com.example.Backend_IE303.service.SalesDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,5 +24,12 @@ public class SalesDataController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
         SalesChartDTO chartData = salesDataService.getSalesData(type, startDate, endDate);
         return chartData;
+    }
+
+    @GetMapping("/report")
+    public SalesReportDTO getSalesReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        return salesDataService.getSalesReport(startDate, endDate);
     }
 }
