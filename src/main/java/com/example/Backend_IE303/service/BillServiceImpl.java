@@ -14,12 +14,11 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -72,62 +71,6 @@ public class BillServiceImpl implements BillService {
         return billRepository.getYesterdayNumberOfBills(java.time.LocalDate.now().minusDays(1));
     }
 
-    // @Override
-    // public List<BillDTO> getAllBills() {
-    // return billRepository.findAll().stream()
-    // .map(BillDTO::fromEntity)
-    // .sorted(Comparator.comparing(BillDTO::getIsDeleted))
-    // .collect(Collectors.toList());
-    //
-    // }
-
-    // @Override
-    // public List<BillDTO> getAllBills(String startDateStr, String endDateStr) {
-    // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    //
-    // LocalDate startDate = null;
-    // LocalDate endDate = null;
-    //
-    // if (startDateStr != null && !startDateStr.isEmpty()) {
-    // startDate = LocalDate.parse(startDateStr, formatter);
-    // }
-    //
-    // if (endDateStr != null && !endDateStr.isEmpty()) {
-    // endDate = LocalDate.parse(endDateStr, formatter);
-    // }
-    //
-    // List<Bill> filteredBills;
-    //
-    // if (startDate != null && endDate != null) {
-    // filteredBills =
-    // billRepository.findByCreatedAtBetween(startDate.atStartOfDay(),
-    // endDate.plusDays(1).atStartOfDay());
-    // } else {
-    // filteredBills = billRepository.findAll();
-    // }
-    //
-    // return filteredBills.stream()
-    // .map(BillDTO::fromEntity)
-    // .sorted(Comparator.comparing(BillDTO::getIsDeleted))
-    // .collect(Collectors.toList());
-    // }
-    //
-    // @Override
-    // public Page<BillDTO> getAllBills(Pageable pageable, String keyword) {
-    // Pageable sortedPageable = PageRequest.of(
-    // pageable.getPageNumber(),
-    // pageable.getPageSize(),
-    // pageable.getSort().and(Sort.by("isDeleted").ascending().and(Sort.by("createdAt").descending()))
-    // );
-    //
-    // if (keyword == null || keyword.trim().isEmpty()) {
-    // return billRepository.findAll(sortedPageable).map(BillDTO::fromEntity);
-    // }
-    //
-    // return billRepository.searchBillsByKeyword(keyword,sortedPageable)
-    // .map(BillDTO::fromEntity);
-    // }
-
     @Override
     public Page<BillDTO> getAllBills(Pageable pageable, String keyword, String startDateStr, String endDateStr) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -167,6 +110,11 @@ public class BillServiceImpl implements BillService {
             return billRepository.searchBillsByKeywordAndCreatedAtBetween(keyword, from, to, sortedPageable)
                     .map(BillDTO::fromEntity);
         }
+    }
+
+    @Override
+    public List<BillDTO> getAllBillsList() {
+        return billRepository.findAll().stream().map(BillDTO::fromEntity).collect(Collectors.toList());
     }
 
     @Override

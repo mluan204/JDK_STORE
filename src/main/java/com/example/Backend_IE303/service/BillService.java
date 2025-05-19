@@ -20,6 +20,8 @@ public interface BillService {
 
     Page<BillDTO> getAllBills(Pageable pageable, String keyword, String startDateStr, String endDateStr);
 
+    List<BillDTO> getAllBillsList();
+
     BillDTO getBillById(Integer id);
 
     BillDTO createBill(BillDTO billDTO, int pointsToUse);
