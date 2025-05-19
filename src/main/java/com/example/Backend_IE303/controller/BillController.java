@@ -35,6 +35,10 @@ public class BillController {
         return billService.getNumberOfBills();
     }
 
+    @GetMapping("/")
+    public List<BillDTO> getAllBillsList() {
+        return billService.getAllBillsList();
+    }
 
     @GetMapping("/paged")
     public ResponseEntity<Page<BillDTO>> getAllBills(
@@ -42,18 +46,15 @@ public class BillController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate
-    ) {
+            @RequestParam(required = false) String endDate) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(billService.getAllBills(pageable, keyword, startDate, endDate));
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<BillDTO> getBillById(@PathVariable Integer id) {
         return ResponseEntity.ok(billService.getBillById(id));
     }
-
 
     @PostMapping("/create-bill")
     public ResponseEntity<BillDTO> createBill(
@@ -77,5 +78,5 @@ public class BillController {
                     .body("Fail: Bill not found or could not be deleted.");
         }
     }
-    
+
 }

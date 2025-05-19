@@ -12,25 +12,28 @@ import java.util.List;
 
 @Repository
 public interface BillDetailRepository extends JpaRepository<BillDetail, Integer> {
-    @Query("SELECT SUM(bd.quantity) FROM BillDetail bd " +
-            "JOIN bd.bill b " +
-            "WHERE FUNCTION('DATE', b.createdAt) = CURRENT_DATE AND b.isDeleted = false")
-    Integer getTotalProductsSold();
+        @Query("SELECT SUM(bd.quantity) FROM BillDetail bd " +
+                        "JOIN bd.bill b " +
+                        "WHERE FUNCTION('DATE', b.createdAt) = CURRENT_DATE AND b.isDeleted = false")
+        Integer getTotalProductsSold();
 
-    @Query("SELECT SUM(bd.quantity) FROM BillDetail bd " +
-            "JOIN bd.bill b WHERE FUNCTION('DATE', b.createdAt) = :date AND b.isDeleted = false"
-    )
-    Integer getYesterdayProductsSold(@Param("date") java.time.LocalDate date
-    );
+        @Query("SELECT SUM(bd.quantity) FROM BillDetail bd " +
+                        "JOIN bd.bill b WHERE FUNCTION('DATE', b.createdAt) = :date AND b.isDeleted = false")
+        Integer getYesterdayProductsSold(@Param("date") java.time.LocalDate date);
 
-    @Query("SELECT bd.bill.billDetails FROM BillDetail bd WHERE bd.bill.id = :billId AND bd.bill.isDeleted = false")
-    List<BillDetail> findByBillId(@Param("billId") Integer billId);
+        @Query("SELECT bd.bill.billDetails FROM BillDetail bd WHERE bd.bill.id = :billId AND bd.bill.isDeleted = false")
+        List<BillDetail> findByBillId(@Param("billId") Integer billId);
 
-    @Modifying(clearAutomatically = true)
-    @Transactional
-    @Query("DELETE FROM BillDetail bd WHERE bd.bill.id = :billId")
-    void deleteByBillId(@Param("billId") Integer billId);
+        @Modifying(clearAutomatically = true)
+        @Transactional
+        @Query("DELETE FROM BillDetail bd WHERE bd.bill.id = :billId")
+        void deleteByBillId(@Param("billId") Integer billId);
 
-
+        @Query("SELECT bd.product.id as productId, SUM(bd.quantity) as totalQuantity " +
+                        "FROM BillDetail bd " +
+                        "JOIN bd.bill b " +
+                        "WHERE b.isDeleted = false " +
+                        "GROUP BY bd.product.id")
+        List<Object[]> getTotalQuantityByProduct();
 
 }

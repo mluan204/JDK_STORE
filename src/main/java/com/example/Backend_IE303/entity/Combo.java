@@ -22,8 +22,10 @@ public class Combo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    Timestamp created_ad;
-    Timestamp time_end;
+    @Column(name = "created_at")
+    Timestamp createdAt;
+    @Column(name = "time_end")
+    Timestamp timeEnd;
 
     @OneToMany(mappedBy = "combo", cascade = CascadeType.ALL)
     List<ComboProduct> comboProducts = new ArrayList<>();

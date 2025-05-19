@@ -1,13 +1,13 @@
-package com.example.Backend_IE303.entity.EmbeddedId;
+package com.example.Backend_IE303.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class ComboProductId {
-    private Integer comboId;
+public class ProductQuantityDTO {
     private Integer productId;
+    private Long totalQuantity;
 }
