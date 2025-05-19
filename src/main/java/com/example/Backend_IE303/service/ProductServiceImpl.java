@@ -1,6 +1,7 @@
 package com.example.Backend_IE303.service;
 
 import com.example.Backend_IE303.dto.ProductDTO;
+import com.example.Backend_IE303.entity.Category;
 import com.example.Backend_IE303.entity.Product;
 import com.example.Backend_IE303.exceptions.CustomException;
 import com.example.Backend_IE303.repository.CategoryRepository;
@@ -20,9 +21,12 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
+    private  final  CategoryRepository categoryRepository;
+
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, CategoryRepository categoryRepository1) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository1;
     }
 
     // Lấy toàn bộ sản phẩm (không phân trang)
@@ -55,4 +59,36 @@ public class ProductServiceImpl implements ProductService {
         }
         return ProductDTO.fromEntity(productRepository.save(product)) ;
     }
+
+    @Override
+    public ProductDTO updateProduct(Integer id, ProductDTO productDTO) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với ID: " + id));
+
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        product.setImage(productDTO.getImage());
+        product.setSuppliers(productDTO.getSuppliers());
+        product.setQuantity_available(productDTO.getQuantityAvailable());
+        product.setDate_expired(productDTO.getDateExpired());
+        product.setSale_price(productDTO.getSalePrice());
+        product.setInput_price(productDTO.getInputPrice());
+        product.setPrice(productDTO.getPrice());
+
+        Category category = (Category) categoryRepository.findByName(productDTO.getCategoryName())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục với tên: " + productDTO.getCategoryName()));
+        product.setCategory(category);
+
+        Product updatedProduct = productRepository.save(product);
+        return ProductDTO.fromEntity(updatedProduct);
+    }
+
+    @Override
+    public void deleteProduct(Integer id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với ID: " + id));
+        productRepository.delete(product);
+    }
+
+
 }

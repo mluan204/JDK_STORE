@@ -31,8 +31,6 @@ public class BillServiceImpl implements BillService {
     private final BillRepository billRepository;
     private final BillDetailRepository billDetailRepository;
     private final EmployeeRepository employeeRepository;
-    private final CustomerService customerService;
-    private final ProductService productService;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
@@ -45,8 +43,6 @@ public class BillServiceImpl implements BillService {
         this.billRepository = billRepository;
         this.billDetailRepository = billDetailRepository;
         this.employeeRepository = employeeRepository;
-        this.customerService = customerService;
-        this.productService = productService;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
     }
