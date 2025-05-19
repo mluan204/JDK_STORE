@@ -14,4 +14,8 @@ public class ReceiptDetailResponseDTO {
     private String note;
     private String employee_name;
     private List<ReceiptDetailDTO> receipt_details;
+
+    public ReceiptDetailResponseDTO() {
+
+    }
 }

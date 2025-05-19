@@ -21,4 +21,8 @@ public interface ProductService {
     //Thêm sản phẩm mới
     ProductDTO addProduct(Product product);
 
+    ProductDTO updateProduct(Integer id, ProductDTO productDTO);
+
+    void deleteProduct(Integer id);
+
 }

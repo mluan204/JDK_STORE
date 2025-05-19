@@ -10,8 +10,11 @@ import com.example.Backend_IE303.entity.Receipt;
 import com.example.Backend_IE303.entity.ReceiptDetail;
 import com.example.Backend_IE303.repository.EmployeeRepository;
 import com.example.Backend_IE303.repository.ProductRepository;
+import com.example.Backend_IE303.repository.ReceiptDetailRepository;
 import com.example.Backend_IE303.repository.ReceiptRepository;
 import io.jsonwebtoken.impl.security.EdwardsCurve;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +37,9 @@ public class ReceiptService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+    @Autowired
+    private ReceiptDetailRepository receiptDetailRepository;
+
     public List<ReceiptDTO> getAllReceipts() {
         List<Receipt> receipts = receiptRepository.findAll();
         return receipts.stream()
@@ -47,17 +53,32 @@ public class ReceiptService {
                 .collect(Collectors.toList());
     }
 
-    public Page<ReceiptDTO> getReceiptsPaginated(int page, int size) {
+    public Page<ReceiptDetailResponseDTO> getReceiptsPaginated(int page, int size) {
         Page<Receipt> receiptsPage = receiptRepository.findAll(PageRequest.of(page, size));
 
-        return receiptsPage.map(receipt -> new ReceiptDTO(
-                receipt.getId(),
-                receipt.getCreated_at(),
-                receipt.getTotal_cost(),
-                receipt.getNote(),
-                receipt.getEmployee() != null ? receipt.getEmployee().getName() : "N/A"
-        ));
+        return receiptsPage.map(receipt -> {
+            List<ReceiptDetailDTO> detailDTOs = receipt.getReceiptDetails().stream().map(detail -> {
+                ReceiptDetailDTO dto = new ReceiptDetailDTO();
+                dto.setProductId(detail.getProduct() != null ? detail.getProduct().getId() : null);
+                dto.setSupplier(detail.getSupplier());
+                dto.setQuantity(detail.getQuantity());
+                dto.setInput_price(detail.getInputPrice());
+                dto.setCheck(detail.isCheck());
+                return dto;
+            }).collect(Collectors.toList());
+
+            ReceiptDetailResponseDTO dto = new ReceiptDetailResponseDTO();
+            dto.setId(receipt.getId());
+            dto.setCreated_at(receipt.getCreated_at());
+            dto.setTotal_cost(receipt.getTotal_cost());
+            dto.setNote(receipt.getNote());
+            dto.setEmployee_name(receipt.getEmployee() != null ? receipt.getEmployee().getName() : "N/A");
+            dto.setReceipt_details(detailDTOs);
+
+            return dto;
+        });
     }
+
 
 
 
@@ -105,6 +126,23 @@ public class ReceiptService {
         );
     }
 
+    @Transactional
+    public boolean deleteReceiptById(Integer id) {
+        Optional<Receipt> optionalReceipt = receiptRepository.findById(id);
+        if (optionalReceipt.isEmpty()) {
+            return false;  // hoặc có thể ném exception tùy thiết kế
+        }
+
+        Receipt receipt = optionalReceipt.get();
+
+        if (receipt.getReceiptDetails() != null) {
+            receiptDetailRepository.deleteAll(receipt.getReceiptDetails());
+        }
+
+        receiptRepository.delete(receipt);
+        return true;
+    }
+
 
     public void addReceipt(ReceiptDTO dto) {
         Receipt receipt = new Receipt();
@@ -112,7 +150,7 @@ public class ReceiptService {
         receipt.setTotal_cost(dto.getTotal_cost());
         receipt.setNote(dto.getNote());
 
-        Employee employee = (Employee) employeeRepository.findById(dto.getEmployeeId())
+        Employee employee = employeeRepository.findById(dto.getEmployeeId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên"));
         receipt.setEmployee(employee);
 
@@ -122,17 +160,38 @@ public class ReceiptService {
             Product product = productRepository.findById(detailDTO.getProductId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
 
+            // Cập nhật giá nhập trung bình có trọng số và số lượng tồn kho
+            int currentQuantity = product.getQuantity_available();
+            int currentInputPrice = product.getInput_price();
+
+            int newQuantity = detailDTO.getQuantity();
+            int newInputPrice = detailDTO.getInput_price();
+
+            // Tính giá nhập mới theo công thức trung bình có trọng số
+            int updatedInputPrice = 0;
+            if (currentQuantity + newQuantity > 0) {
+                updatedInputPrice = (currentInputPrice * currentQuantity + newInputPrice * newQuantity) / (currentQuantity + newQuantity);
+            }
+
+            int updatedQuantity = currentQuantity + newQuantity;
+
+            product.setInput_price(updatedInputPrice);
+            product.setQuantity_available(updatedQuantity);
+
+            // Lưu cập nhật product ngay
+            productRepository.save(product);
+
             ReceiptDetail detail = new ReceiptDetail();
             detail.setProduct(product);
             detail.setReceipt(receipt);
             detail.setSupplier(detailDTO.getSupplier());
-            detail.setQuantity(detailDTO.getQuantity());
-            detail.setInput_price(detailDTO.getInput_price());
+            detail.setQuantity(newQuantity);
+            detail.setInput_price(newInputPrice);
             detail.setCheck(detailDTO.isCheck());
 
             // Tạo composite key
             ReceiptProId id = new ReceiptProId();
-            detail.setId(id); // sẽ được gán tự động khi persist nếu receipt chưa có ID
+            detail.setId(id);
 
             details.add(detail);
         }
@@ -140,4 +199,5 @@ public class ReceiptService {
         receipt.setReceiptDetails(details);
         receiptRepository.save(receipt);
     }
+
 }

@@ -5,6 +5,7 @@ import com.example.Backend_IE303.dto.ReceiptDetailResponseDTO;
 import com.example.Backend_IE303.service.ReceiptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,10 +25,10 @@ public class ReceiptController {
     }
 
     @GetMapping("/paged")
-    public ResponseEntity<Page<ReceiptDTO>> getReceiptsPaginated(
+    public ResponseEntity<Page<ReceiptDetailResponseDTO>> getReceiptsPaginated(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
-        Page<ReceiptDTO> receipts = receiptService.getReceiptsPaginated(page, size);
+        Page<ReceiptDetailResponseDTO> receipts = receiptService.getReceiptsPaginated(page, size);
         return ResponseEntity.ok(receipts);
     }
 
@@ -54,4 +55,17 @@ public class ReceiptController {
         receiptService.addReceipt(dto);
         return ResponseEntity.ok("Thêm phiếu nhập thành công");
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteReceipt(@PathVariable Integer id) {
+        boolean deleted = receiptService.deleteReceiptById(id);
+
+        if (deleted) {
+            return ResponseEntity.ok("Receipt with id " + id + " was deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Receipt with id " + id + " not found.");
+        }
+    }
+
 }
