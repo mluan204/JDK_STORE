@@ -6,6 +6,8 @@ import com.example.Backend_IE303.service.ComboService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,12 @@ public class ComboController {
 
     public ComboController(ComboService comboService) {
         this.comboService = comboService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<List<Integer>>> getAllComboList() {
+        List<List<Integer>> comboList = comboService.getAllComboList();
+        return ResponseEntity.ok(comboList);
     }
 
     @GetMapping("/paged")

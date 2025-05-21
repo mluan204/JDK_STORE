@@ -31,6 +31,14 @@ public class ComboService {
         this.productRepository = productRepository;
     }
 
+    public List<List<Integer>> getAllComboList() {
+        return repository.findAll().stream()
+                .map(combo -> combo.getComboProducts().stream()
+                        .map(cp -> cp.getProduct().getId())
+                        .collect(Collectors.toList()))
+                .collect(Collectors.toList());
+    }
+
     public Page<Combo> getAllCombo(Pageable pageable) {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
         Pageable sortedPageable = PageRequest.of(
