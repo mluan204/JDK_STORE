@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -89,6 +88,33 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với ID: " + id));
         productRepository.delete(product);
     }
+
+    @Override
+    public Page<ProductDTO> getProductsByCategoryId(Integer categoryId, Pageable pageable) {
+        return productRepository.findByCategoryId(categoryId, pageable)
+                .map(ProductDTO::fromEntity);
+    }
+
+    @Override
+    public Page<ProductDTO> searchProducts(String keyword, Integer categoryId, Pageable pageable) {
+        // Nếu keyword null hoặc rỗng thì gán thành chuỗi rỗng
+        if (keyword == null) {
+            keyword = "";
+        }
+
+        if (categoryId != null) {
+            // Tìm theo cả keyword và categoryId
+            return productRepository.findByNameContainingIgnoreCaseAndCategoryId(keyword, categoryId, pageable)
+                    .map(ProductDTO::fromEntity);
+        } else {
+            // Tìm theo keyword thôi
+            return productRepository.findByNameContainingIgnoreCase(keyword, pageable)
+                    .map(ProductDTO::fromEntity);
+        }
+    }
+    
+
+
 
 
 }
