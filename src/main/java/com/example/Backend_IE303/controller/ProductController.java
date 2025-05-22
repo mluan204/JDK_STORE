@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/products")
@@ -61,5 +62,29 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.ok("Xóa sản phẩm thành công với ID: " + id);
     }
+
+    @GetMapping("/by-category")
+    public ResponseEntity<Page<ProductDTO>> getProductsByCategory(
+            @RequestParam Integer categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductDTO> products = productService.getProductsByCategoryId(categoryId, pageable);
+        return ResponseEntity.ok(products);
+    }
+
+
+    @GetMapping("/search")
+    public Page<ProductDTO> searchProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productService.searchProducts(keyword, categoryId, pageable);
+    }
+
 
 }
