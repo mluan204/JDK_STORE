@@ -39,13 +39,14 @@ public class ComboService {
                 .collect(Collectors.toList());
     }
 
-    public Page<Combo> getAllCombo(Pageable pageable) {
+    public Page<Combo> getAllCombo(Pageable pageable, Boolean isActive) {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
         Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
                 sort);
-        return repository.findAll(sortedPageable);
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        return repository.findAllByExpirationStatus(isActive, currentTime, sortedPageable);
     }
 
     @Transactional
@@ -86,5 +87,14 @@ public class ComboService {
 
         repository.deleteById(id);
         return true;
+    }
+
+    @Transactional
+    public Combo updateComboTimeEnd(Integer id, Timestamp newTimeEnd) {
+        Combo combo = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Combo not found with id: " + id));
+
+        combo.setTimeEnd(newTimeEnd);
+        return repository.save(combo);
     }
 }
