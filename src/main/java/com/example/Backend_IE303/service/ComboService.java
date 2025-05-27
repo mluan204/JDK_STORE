@@ -1,5 +1,7 @@
 package com.example.Backend_IE303.service;
 
+import com.example.Backend_IE303.dto.ComboItemProductDTO;
+import com.example.Backend_IE303.dto.ItemProductDTO;
 import com.example.Backend_IE303.entity.Combo;
 import com.example.Backend_IE303.entity.ComboProduct;
 import com.example.Backend_IE303.dto.ComboDTO;
@@ -96,5 +98,21 @@ public class ComboService {
 
         combo.setTimeEnd(newTimeEnd);
         return repository.save(combo);
+    }
+
+    @Transactional
+    public List<ComboItemProductDTO> getAllComboProducts() {
+        List<Combo> combos = repository.findAll();
+        return combos.stream().map(combo -> {
+            ComboItemProductDTO comboItemProductDTO1 = new ComboItemProductDTO();
+            comboItemProductDTO1.setProducts(comboProductRepository.findByComboId(combo.getId()).stream().map(e -> {
+                ItemProductDTO itemProductDTO = new ItemProductDTO();
+                itemProductDTO.setId(e.getProduct().getId());
+                itemProductDTO.setPrice(e.getPrice());
+                itemProductDTO.setQuantity(e.getQuantity());
+                return itemProductDTO;
+            }).collect(Collectors.toList()));
+            return comboItemProductDTO1;
+        }).toList();
     }
 }
