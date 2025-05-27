@@ -18,8 +18,11 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -60,12 +63,14 @@ public class ReceiptService {
             List<ReceiptDetailDTO> detailDTOs = receipt.getReceiptDetails().stream().map(detail -> {
                 ReceiptDetailDTO dto = new ReceiptDetailDTO();
                 dto.setProductId(detail.getProduct() != null ? detail.getProduct().getId() : null);
+                dto.setProductName(detail.getProduct() != null ? detail.getProduct().getName() : null);
                 dto.setSupplier(detail.getSupplier());
                 dto.setQuantity(detail.getQuantity());
                 dto.setInput_price(detail.getInputPrice());
                 dto.setCheck(detail.isCheck());
                 return dto;
             }).collect(Collectors.toList());
+
 
             ReceiptDetailResponseDTO dto = new ReceiptDetailResponseDTO();
             dto.setId(receipt.getId());
@@ -200,4 +205,46 @@ public class ReceiptService {
         receiptRepository.save(receipt);
     }
 
-}
+    public Page<ReceiptDetailResponseDTO> getReceiptsPaginatedFiltered(int page, int size, LocalDate fromDate, LocalDate toDate, String employeeName) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Specification<Receipt> spec = Specification.where(null);
+
+        // Lọc theo ngày tạo (nếu có)
+        if (fromDate != null || toDate != null) {
+            spec = spec.and(ReceiptSpecification.hasCreatedDateBetween(fromDate, toDate));
+        }
+
+        // Lọc theo tên nhân viên (nếu có)
+        if (employeeName != null && !employeeName.trim().isEmpty()) {
+            spec = spec.and(ReceiptSpecification.hasEmployeeName(employeeName));
+        }
+
+        Page<Receipt> receiptsPage = receiptRepository.findAll(spec, pageable);
+
+        return receiptsPage.map(receipt -> {
+            List<ReceiptDetailDTO> detailDTOs = receipt.getReceiptDetails().stream().map(detail -> {
+                ReceiptDetailDTO dto = new ReceiptDetailDTO();
+                dto.setProductId(detail.getProduct() != null ? detail.getProduct().getId() : null);
+                dto.setProductName(detail.getProduct() != null ? detail.getProduct().getName() : null);
+                dto.setSupplier(detail.getSupplier());
+                dto.setQuantity(detail.getQuantity());
+                dto.setInput_price(detail.getInputPrice());
+                dto.setCheck(detail.isCheck());
+                return dto;
+            }).collect(Collectors.toList());
+
+            ReceiptDetailResponseDTO dto = new ReceiptDetailResponseDTO();
+            dto.setId(receipt.getId());
+            dto.setCreated_at(receipt.getCreated_at());
+            dto.setTotal_cost(receipt.getTotal_cost());
+            dto.setNote(receipt.getNote());
+            dto.setEmployee_name(receipt.getEmployee() != null ? receipt.getEmployee().getName() : "N/A");
+            dto.setReceipt_details(detailDTOs);
+
+            return dto;
+        });
+    }
+
+
+    }

@@ -12,6 +12,7 @@ public class ReceiptDetailDTO {
     private int quantity;
     private int input_price;
     private boolean isCheck;
+    private String productName;
 
     public ReceiptDetailDTO() {}
 
