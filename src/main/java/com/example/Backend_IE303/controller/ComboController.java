@@ -1,6 +1,7 @@
 package com.example.Backend_IE303.controller;
 
 import com.example.Backend_IE303.dto.ComboDTO;
+import com.example.Backend_IE303.dto.ComboItemProductDTO;
 import com.example.Backend_IE303.dto.UpdateComboTimeRequest;
 import com.example.Backend_IE303.entity.Combo;
 import com.example.Backend_IE303.service.ComboService;
@@ -56,5 +57,11 @@ public class ComboController {
             @RequestBody UpdateComboTimeRequest request) {
         Combo updatedCombo = comboService.updateComboTimeEnd(id, request.getTimeEnd());
         return ResponseEntity.ok(ComboDTO.fromEntity(updatedCombo));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<ComboItemProductDTO>> getAllComboItemProduct() {
+        List<ComboItemProductDTO> comboList = comboService.getAllComboProducts();
+        return ResponseEntity.ok(comboList);
     }
 }
