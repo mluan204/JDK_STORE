@@ -1,11 +1,11 @@
 # Build stage
-FROM gradle:8.6-jdk23 AS build
+FROM gradle:8.6-jdk17 AS build
 WORKDIR /app
 COPY . .
 RUN gradle build --no-daemon
 
 # Run stage
-FROM eclipse-temurin:23-jre-alpine
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 
