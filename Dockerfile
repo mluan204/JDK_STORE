@@ -2,6 +2,7 @@
 FROM gradle:8.6-jdk17 AS build
 WORKDIR /app
 COPY . .
+RUN chmod +x ./gradlew
 RUN ./gradlew build -x test --no-daemon
 
 # Run stage
