@@ -1,11 +1,11 @@
 package com.example.Backend_IE303.service;
 
 import com.example.Backend_IE303.entity.UserAccount;
-import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +15,14 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private final String SECRET_KEY = Dotenv.load().get("SECRET_KEY");
+    @Value("${SECRET_KEY}")
+    private String SECRET_KEY;
 
-    public String extractUsername(String token){
+    public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public boolean isValid(String token, UserDetails user){
+    public boolean isValid(String token, UserDetails user) {
         String username = extractUsername(token);
         return (username.equals(user.getUsername())) && !isTokenExpired(token);
     }
@@ -34,22 +35,22 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public String generateToken(UserAccount userAccount){
+    public String generateToken(UserAccount userAccount) {
         return Jwts
                 .builder()
                 .subject(userAccount.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 4*60*60*1000) )
+                .expiration(new Date(System.currentTimeMillis() + 4 * 60 * 60 * 1000))
                 .signWith(getSignInKey())
                 .compact();
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> resolver){
+    public <T> T extractClaim(String token, Function<Claims, T> resolver) {
         Claims claims = extractAllClaims(token);
         return resolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token){
+    private Claims extractAllClaims(String token) {
         return Jwts
                 .parser()
                 .verifyWith(getSignInKey())
